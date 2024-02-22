@@ -13,8 +13,6 @@ graph LR
 	B --> F[内容配音] --> G -->H[End]
 ```
 
-
-
 ## 使用方式
 
 下载本仓库：
@@ -37,6 +35,9 @@ pip install -r requirements.txt
 python run.py
 ```
 
+## 配置
+见 `config.ini`
+
 ## 引用
 
 > ChatGLM2-6B -  https://github.com/THUDM/ChatGLM2-6B
@@ -46,6 +47,5 @@ python run.py
 > Edge-TTS - https://github.com/rany2/edge-tts
 >
 > FFmpeg - https://github.com/FFmpeg/FFmpeg
->
-> Googletrans - https://github.com/ssut/py-googletrans
+
 
