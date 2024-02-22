@@ -27,6 +27,7 @@ logging.basicConfig(level=logging.INFO,format='%(asctime)s - %(levelname)s - %(m
 logger = logging.getLogger()
 now_time = datetime.datetime.today().strftime('%Y-%m-%d_%H%M%S')
 
+# --------------------------------------------------------------------------------- #
 config = configparser.ConfigParser()
 config.read('config.ini')
 image_dir = config['global']['image_dir']
@@ -34,12 +35,30 @@ audio_dir = config['global']['audio_dir']
 video_dir = config['global']['video_dir']
 video_txt = config['global']['video_txt']
 done_video_dir = config['global']['done_video_dir']
+chatglm_api_address = config['global']['chatglm_api_address']
+stablediffusion_api_address = config['global']['stablediffusion_api_address']
+# --------------------------------------------------------------------------------- #
+
+
+def check_env():
+    logger.info('开始检查环境')
+    try:
+        subprocess.run(['ffmpeg', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        logger.info('ffmpeg 已安装')
+        try:
+            subprocess.run(['ffprobe', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            logger.info('ffprobe 已安装')
+        except FileNotFoundError:
+            logger.error('ffprobe 未安装!')
+            sys.exit(1)
+    except FileNotFoundError:
+        logger.error(f'FFmpeg 未安装!')
+        sys.exit(1)
 
 
 # 生成故事内容
 def get_content(prompt):
     logger.info(f'正在输入Promtps: {prompt}')
-    chatglm_api_address = config['global']['chatglm_api_address']
     headers = { 'Content-Type': 'application/json' }
     payload = { 'prompt': f'{prompt}', 'history': [] }
     response = requests.post(url=chatglm_api_address, headers=headers, json=payload)
@@ -107,7 +126,6 @@ def transfer_sdapi(prompt):
     logger.info('开始生成图片')
     if type(prompt) is list:
         for index, i in enumerate(prompt):
-            stablediffusion_api_address = config['global']['stablediffusion_api_address']  # API Address
             payload = {
                 'override_settings': {
                     'sd_model_checkpoint': config['stablediffusion']['sd_model_checkpoint'],
@@ -197,6 +215,7 @@ def delete_files(directory):
 
 
 if __name__ == '__main__':
+    check_env()
     prompt = '请生成一个适合0-3岁儿童的睡前故事'
     content = get_content(prompt=prompt)
     content_zhCN = content_tuning(content=content)
